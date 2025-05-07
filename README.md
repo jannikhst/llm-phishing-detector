@@ -1,5 +1,7 @@
 # MailCheck: Email Security Analysis System
 
+![MailCheck Demo](https://raw.githubusercontent.com/jannikhst/llm-phishing-detector/main/data/public/gif/mailcheck-1.gif)
+
 ## Overview
 
 MailCheck is a comprehensive phishing detection system developed as part of a bachelor's thesis. The system combines heuristic technical analyses with linguistic evaluation using Large Language Models (LLMs) to provide transparent, educational feedback about potential phishing threats in emails.
