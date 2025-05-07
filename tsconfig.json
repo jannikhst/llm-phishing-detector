@@ -1,0 +1,35 @@
+{
+    "compilerOptions": {
+        "allowJs": true, // Beibehaltung, um JS-Dateien zu erlauben
+        "moduleResolution": "node", // Standardmäßig korrekt für Node.js-Module
+        "target": "es2015", // Ziel ist ES2015, könnte je nach Umgebung auf "es2019" erhöht werden
+        "module": "commonjs", // Notwendig für Node.js-Umgebungen
+        "lib": [
+            "esnext",
+            "dom"
+        ], // Unterstützt moderne JS-Funktionen und DOM
+        "strict": true, // Aktiviert strikte Typisierung
+        "sourceMap": true, // Erzeugt Source Maps für Debugging
+        "declaration": true, // Generiert Typdefinitionen
+        "esModuleInterop": true, // Wichtig für die Interop mit CommonJS- und ES-Modulen
+        "allowSyntheticDefaultImports": true, // Ermöglicht synthetische Standardimporte
+        "experimentalDecorators": true, // Unterstützt TypeScript-Dekoratoren
+        "emitDecoratorMetadata": true, // Erforderlich für Dependency Injection in manchen Frameworks
+        "declarationDir": "./build", // Ausgabeort für Deklarationen
+        "outDir": "./build", // Ausgabeverzeichnis für kompilierte Dateien
+        "resolveJsonModule": true, // Wichtig, wenn JSON-Dateien importiert werden
+        "typeRoots": [
+            "node_modules/@types"
+        ], // Sucht Typdefinitionen
+        "skipLibCheck": true, // Vermeidet Typprüfung in `node_modules`
+        "forceConsistentCasingInFileNames": true // Erzwingt konsistente Groß-/Kleinschreibung
+    },
+    "include": [
+        "src/**/*", // Einschließen aller Dateien im src-Verzeichnis
+        "src/**/*.json" // JSON-Dateien ausdrücklich einbeziehen
+    ],
+    "exclude": [
+        "node_modules",
+        "build" // Ausgabeverzeichnis ausschließen
+    ]
+}

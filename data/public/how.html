@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Mail als Anhang weiterleiten</title>
+    <style>
+        /* Grundlegende Resets und Schriftarten */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f2027; /* Fallback für ältere Browser */
+            background: linear-gradient(135deg, #2c5364, #203a43, #0f2027);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px;
+        }
+        header {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            color: #ffffff;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+        }
+        header p {
+            font-size: 1.2em;
+            color: #a0aec0;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 40px 30px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        h1 {
+            text-align: center;
+            color: #4fd1c5;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 1px 1px 5px rgba(0,0,0,0.3);
+        }
+        .search-bar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .search-bar input {
+            width: 100%;
+            max-width: 500px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            outline: none;
+            transition: box-shadow 0.3s;
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+        .search-bar input::placeholder {
+            color: #cbd5e0;
+        }
+        .search-bar input:focus {
+            box-shadow: 0 0 10px #4fd1c5;
+        }
+        .accordion {
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.05);
+            transition: background 0.3s;
+        }
+        .accordion:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .accordion-header {
+            background: #4fd1c5;
+            padding: 15px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s, color 0.3s;
+            border-radius: 10px;
+        }
+        .accordion-header:hover {
+            background: #38b2ac;
+            color: #ffffff;
+        }
+        .accordion-header::after {
+            content: '\25BC'; /* Pfeil nach unten */
+            font-size: 1em;
+            transition: transform 0.3s;
+        }
+        .accordion.active .accordion-header::after {
+            transform: rotate(180deg); /* Pfeil nach oben */
+        }
+        .accordion-content {
+            display: none;
+            padding: 20px;
+            margin-top: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            border-top: 1px solid #4fd1c5;
+            border-radius: 10px;
+            line-height: 1.6;
+            color: #e2e8f0;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .accordion.active .accordion-content {
+            display: block;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin-top: 10px;
+        }
+        ul li {
+            margin-bottom: 10px;
+            position: relative;
+            padding-left: 20px;
+            color: #cbd5e0;
+        }
+        ul li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #4fd1c5;
+        }
+        .note {
+            background: #f56565;
+            color: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 0.95em;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        footer {
+            margin-top: 40px;
+            font-size: 0.9em;
+            color: #a0aec0;
+            text-align: center;
+            max-width: 900px;
+        }
+        footer p {
+            margin-bottom: 5px;
+        }
+        footer .disclaimer {
+            font-size: 0.8em;
+            color: #718096;
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Responsive Anpassungen */
+        @media (max-width: 900px) {
+            .container {
+                padding: 30px 20px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+        }
+        @media (max-width: 600px) {
+            .search-bar input {
+                max-width: 100%;
+            }
+            .accordion-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+        a {
+            color: #84d9e2;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>E-Mail als Anhang weiterleiten</h1>
+        <p>Bzw. als <code>.eml</code>-Datei herunterladen</p>
+        <p>Hier finden sich kurze Anleitungen für die gängigsten Mail-Clients</p>
+    </header>
+    <div class="container">
+        <!-- Suchleiste -->
+        <div class="search-bar">
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="E-Mail-Client suchen ..."
+            />
+        </div>
+
+        <!-- Accordion Elemente -->
+        <!-- 1. Gmail (Mobile) -->
+        <div class="accordion">
+            <div class="accordion-header">Gmail (Mobile)</div>
+            <div class="accordion-content">
+                <p>
+                    Gmail (Mobile) bietet keine direkte Funktion für
+                    <em>„Weiterleiten als Anhang“</em>. Stattdessen:
+                </p>
+                <ul>
+                    <li>Öffnen Sie die E-Mail, die Sie senden möchten.</li>
+                    <li>Tippen Sie auf <strong>Weiterleiten</strong>.</li>
+                    <li>Ändern Sie weder den Betreff noch den Inhalt.</li>
+                    <li>Senden Sie die E-Mail direkt an <a href="mailto:start@mailcheck.help">start@mailcheck.help</a>.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 2. Outlook (Mobile) -->
+        <div class="accordion">
+            <div class="accordion-header">Outlook (Mobile)</div>
+            <div class="accordion-content">
+                <p>
+                    In der mobilen Outlook-App ist das Weiterleiten als Anhang nicht verfügbar. Bitte:
+                </p>
+                <ul>
+                    <li>Öffnen Sie die gewünschte E-Mail.</li>
+                    <li>Tippen Sie auf <strong>Weiterleiten</strong>.</li>
+                    <li>Lassen Sie Betreff und Inhalt unverändert.</li>
+                    <li>Senden Sie die E-Mail an <a href="mailto:start@mailcheck.help">start@mailcheck.help</a>.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 3. Apple Mail (iOS) -->
+        <div class="accordion">
+            <div class="accordion-header">Apple Mail (iOS)</div>
+            <div class="accordion-content">
+                <p>
+                    Auf iPhone und iPad erlaubt Apple Mail kein direktes Weiterleiten als Anhang. Vorgehensweise:
+                </p>
+                <ul>
+                    <li>Öffnen Sie die betreffende E-Mail.</li>
+                    <li>Tippen Sie auf <strong>Weiterleiten</strong>.</li>
+                    <li>Bearbeiten Sie weder Betreff noch Inhalt.</li>
+                    <li>Versenden Sie die E-Mail unverändert an <a href="mailto:start@mailcheck.help">start@mailcheck.help</a>.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 4. Samsung Mail -->
+        <div class="accordion">
+            <div class="accordion-header">Samsung Mail</div>
+            <div class="accordion-content">
+                <p>
+                    In der Samsung-Mail-App ist das Weiterleiten als Anhang leider nicht implementiert. 
+                    Verwenden Sie stattdessen:
+                </p>
+                <ul>
+                    <li>Öffnen Sie die E-Mail.</li>
+                    <li>Tippen Sie auf <strong>Weiterleiten</strong>.</li>
+                    <li>Ändern Sie weder Betreff noch Inhalt.</li>
+                    <li>Senden Sie die E-Mail direkt weiter an <a href="mailto:start@mailcheck.help">start@mailcheck.help</a>.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 5. Gmail (Desktop) -->
+        <div class="accordion">
+            <div class="accordion-header">Gmail (Desktop)</div>
+            <div class="accordion-content">
+                <p>
+                    In Gmail (Desktop) gibt es kein direktes „Weiterleiten als Anhang“. 
+                    Um eine E-Mail als separate Datei zu versenden, laden Sie sie zunächst herunter:
+                </p>
+                <ul>
+                    <li>Öffnen Sie die E-Mail, die Sie anhängen möchten.</li>
+                    <li>Klicken Sie oben rechts auf die drei Punkte (<em>Weitere Aktionen</em>) und wählen Sie 
+                        <strong>Nachricht herunterladen</strong>. Die E-Mail wird als <strong>.eml</strong>-Datei gespeichert.
+                    </li>
+                    <li>Erstellen Sie anschließend eine neue E-Mail.</li>
+                    <li>Fügen Sie die <strong>.eml</strong>-Datei als Anhang hinzu.</li>
+                    <li>Geben Sie <a href="mailto:start@mailcheck.help">start@mailcheck.help</a> als Empfänger ein und senden Sie die Nachricht.</li>
+                    <li>Ein Betreff ist nicht erforderlich, da wir die E-Mail automatisch analysieren.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 6. Outlook (Desktop) -->
+        <div class="accordion">
+            <div class="accordion-header">Outlook (Desktop)</div>
+            <div class="accordion-content">
+                <p>
+                    Outlook (Desktop) bietet eine integrierte Funktion zum Weiterleiten als Anhang:
+                </p>
+                <ul>
+                    <li>Öffnen Sie Outlook und wählen Sie die gewünschte E-Mail.</li>
+                    <li>Klicken Sie auf <strong>Weitere Optionen</strong> (die drei Punkte) und dann auf 
+                        <strong>Weiterleiten als Anhang</strong>.
+                    </li>
+                    <li>Fügen Sie als Empfänger <a href="mailto:start@mailcheck.help">start@mailcheck.help</a> hinzu und senden Sie die E-Mail.</li>
+                    <li>Ein Betreff ist nicht erforderlich, da wir die E-Mail automatisch analysieren.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 7. Thunderbird -->
+        <div class="accordion">
+            <div class="accordion-header">Thunderbird</div>
+            <div class="accordion-content">
+                <p>
+                    Thunderbird kann E-Mails direkt als Anhang weiterleiten:
+                </p>
+                <ul>
+                    <li>Wählen Sie die gewünschte E-Mail in Thunderbird aus.</li>
+                    <li>Klicken Sie in der Menüleiste auf <strong>Nachricht</strong> &gt; 
+                        <strong>Weiterleiten als Anhang</strong>.
+                    </li>
+                    <li>Fügen Sie <a href="mailto:start@mailcheck.help">start@mailcheck.help</a> als gewünschten Empfänger hinzu und senden Sie die E-Mail.</li>
+                    <li>Ein Betreff ist nicht erforderlich, da wir die E-Mail automatisch analysieren.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 8. Apple Mail (Mac) -->
+        <div class="accordion">
+            <div class="accordion-header">Apple Mail (Mac)</div>
+            <div class="accordion-content">
+                <p>
+                    Apple Mail (Mac) unterstützt das Weiterleiten als Anhang:
+                </p>
+                <ul>
+                    <li>Wählen Sie die entsprechende E-Mail aus.</li>
+                    <li>Klicken Sie oben auf <strong>E-Mail als Anhang weiterleiten</strong>.</li>
+                    <li>Fügen Sie den Empfänger (<a href="mailto:start@mailcheck.help">start@mailcheck.help</a>) hinzu und senden Sie die Nachricht.</li>
+                    <li>Ein Betreff ist nicht erforderlich, da wir die E-Mail automatisch analysieren.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 9. Yahoo Mail (Browser) -->
+        <div class="accordion">
+            <div class="accordion-header">Yahoo Mail (Browser)</div>
+            <div class="accordion-content">
+                <p>
+                    Yahoo Mail bietet keine direkte Weiterleitung als Anhang. Bitte:
+                </p>
+                <ul>
+                    <li>Öffnen Sie die E-Mail, die Sie weiterleiten möchten.</li>
+                    <li>Klicken Sie auf <strong>Weiterleiten</strong>.</li>
+                    <li>Lassen Sie den Betreff und den Inhalt unverändert.</li>
+                    <li>Senden Sie die Nachricht direkt an <a href="mailto:start@mailcheck.help">start@mailcheck.help</a>.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 10. Windows 10/11 Mail (Desktop) -->
+        <div class="accordion">
+            <div class="accordion-header">Windows 10/11 Mail (Desktop)</div>
+            <div class="accordion-content">
+                <p>
+                    Die Windows Mail-App unterstützt kein Weiterleiten als Anhang. Stattdessen:
+                </p>
+                <ul>
+                    <li>Öffnen Sie die E-Mail.</li>
+                    <li>Klicken Sie auf <strong>Weiterleiten</strong>.</li>
+                    <li>Bearbeiten Sie Betreff und Inhalt nicht.</li>
+                    <li>Senden Sie die E-Mail an den gewünschten Empfänger (<a href="mailto:start@mailcheck.help">start@mailcheck.help</a>).</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 11. GMX Mail (Browser) -->
+        <div class="accordion">
+            <div class="accordion-header">GMX Mail (Browser)</div>
+            <div class="accordion-content">
+                <p>
+                    GMX bietet die Möglichkeit, E-Mails als <strong>.eml</strong>-Datei herunterzuladen. Bitte:
+                </p>
+                <ul>
+                    <li>Öffnen Sie die E-Mail, die Sie versenden möchten.</li>
+                    <li>Klicken Sie auf <strong>Drucken/Speichern</strong> (siehe <a href="https://hilfe.gmx.net/email/empfangen-und-lesen/email-drucken-speichern.html" target="_blank">Anleitung</a>).</li>
+                    <li>Speichern Sie die E-Mail als <strong>.eml</strong>-Datei.</li>
+                    <li>Erstellen Sie eine neue E-Mail und fügen Sie die <strong>.eml</strong>-Datei als Anhang hinzu.</li>
+                    <li>Senden Sie die Nachricht an <a href="mailto:start@mailcheck.help">start@mailcheck.help</a>.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 12. WEB.DE Mail (Browser) -->
+        <div class="accordion">
+            <div class="accordion-header">WEB.DE Mail (Browser)</div>
+            <div class="accordion-content">
+                <p>
+                    WEB.DE Mail kann E-Mails nicht direkt als Anhang versenden. Alternative:
+                </p>
+                <ul>
+                    <li>Öffnen Sie die entsprechende E-Mail.</li>
+                    <li>Klicken Sie auf <strong>Weiterleiten</strong>.</li>
+                    <li>Bearbeiten Sie nichts an Betreff oder Inhalt.</li>
+                    <li>Senden Sie die E-Mail unverändert an <a href="mailto:start@mailcheck.help">start@mailcheck.help</a>.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 13. ProtonMail (Browser) -->
+        <div class="accordion">
+            <div class="accordion-header">ProtonMail (Browser)</div>
+            <div class="accordion-content">
+                <p>
+                    ProtonMail hat keine Standardfunktion für das Weiterleiten als Anhang. 
+                    Aus Gründen der Ende-zu-Ende-Verschlüsselung ist ein .eml-Anhang nicht immer praktikabel. 
+                    Verwenden Sie stattdessen:
+                </p>
+                <ul>
+                    <li>Öffnen Sie die E-Mail.</li>
+                    <li>Klicken Sie auf <strong>Weiterleiten</strong>.</li>
+                    <li>Verändern Sie Betreff und Inhalt nicht.</li>
+                    <li>Senden Sie die E-Mail unverändert an <a href="mailto:start@mailcheck.help">start@mailcheck.help</a>.</li>
+                </ul>
+                <div class="note">
+                    Hinweis: Möchten Sie die E-Mail dennoch als Anhang versenden, müssten 
+                    Sie den Text zunächst entschlüsseln und extern als .eml speichern. 
+                    Dies kann die Sicherheit beeinträchtigen.
+                </div>
+            </div>
+        </div>
+
+        <!-- 14. Tutanota (Browser) -->
+        <div class="accordion">
+            <div class="accordion-header">Tutanota (Browser)</div>
+            <div class="accordion-content">
+                <p>
+                    Tutanota unterstützt ebenfalls kein natives Weiterleiten als Anhang. 
+                    Nutzen Sie den regulären Weiterleiten-Button:
+                </p>
+                <ul>
+                    <li>Öffnen Sie die E-Mail.</li>
+                    <li>Klicken Sie auf <strong>Weiterleiten</strong>.</li>
+                    <li>Bearbeiten Sie Betreff oder Inhalt nicht.</li>
+                    <li>Senden Sie die Nachricht unverändert an <a href="mailto:start@mailcheck.help">start@mailcheck.help</a>.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 15. Zoho Mail (Browser) -->
+        <div class="accordion">
+            <div class="accordion-header">Zoho Mail (Browser)</div>
+            <div class="accordion-content">
+                <p>
+                    Zoho Mail bietet nur begrenzt Optionen zum Weiterleiten als Anhang. Standardmäßig empfiehlt sich:
+                </p>
+                <ul>
+                    <li>Öffnen Sie die E-Mail.</li>
+                    <li>Klicken Sie auf <strong>Weiterleiten</strong>.</li>
+                    <li>Verändern Sie weder Betreff noch Inhalt.</li>
+                    <li>Senden Sie die E-Mail unverändert an <a href="mailto:start@mailcheck.help">start@mailcheck.help</a>.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 16. AOL Mail (Browser) -->
+        <div class="accordion">
+            <div class="accordion-header">AOL Mail (Browser)</div>
+            <div class="accordion-content">
+                <p>
+                    AOL Mail stellt keinen direkten „Weiterleiten als Anhang“-Button zur Verfügung. 
+                    Führen Sie bitte Folgendes aus:
+                </p>
+                <ul>
+                    <li>Öffnen Sie die E-Mail.</li>
+                    <li>Klicken Sie auf <strong>Weiterleiten</strong>.</li>
+                    <li>Lassen Sie Betreff und Inhalt unverändert.</li>
+                    <li>Senden Sie die Nachricht direkt an <a href="mailto:start@mailcheck.help">start@mailcheck.help</a>.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 17. Spark (Mobile/Desktop) -->
+        <div class="accordion">
+            <div class="accordion-header">Spark (Mobile/Desktop)</div>
+            <div class="accordion-content">
+                <p>
+                    Spark bietet kein direktes Weiterleiten als Anhang. Nutzen Sie stattdessen:
+                </p>
+                <ul>
+                    <li>Öffnen Sie die gewünschte E-Mail.</li>
+                    <li>Klicken bzw. tippen Sie auf <strong>Weiterleiten</strong>.</li>
+                    <li>Bearbeiten Sie nichts an Betreff oder Inhalt.</li>
+                    <li>Senden Sie die E-Mail unverändert an <a href="mailto:start@mailcheck.help">start@mailcheck.help</a>.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 18. BlueMail (Mobile/Desktop) -->
+        <div class="accordion">
+            <div class="accordion-header">BlueMail (Mobile/Desktop)</div>
+            <div class="accordion-content">
+                <p>
+                    In BlueMail ist das Weiterleiten als Anhang nicht von Haus aus verfügbar. Als Alternative:
+                </p>
+                <ul>
+                    <li>Öffnen Sie die E-Mail.</li>
+                    <li>Tippen bzw. klicken Sie auf <strong>Weiterleiten</strong>.</li>
+                    <li>Bearbeiten Sie Betreff oder Inhalt nicht.</li>
+                    <li>Senden Sie die E-Mail unverändert an <a href="mailto:start@mailcheck.help">start@mailcheck.help</a>.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 19. Newton Mail (Mobile/Desktop) -->
+        <div class="accordion">
+            <div class="accordion-header">Newton Mail (Mobile/Desktop)</div>
+            <div class="accordion-content">
+                <p>
+                    Newton Mail besitzt keine integrierte Weiterleitung als Anhang. 
+                    Verwenden Sie daher die Standard-Weiterleitung:
+                </p>
+                <ul>
+                    <li>Öffnen Sie die E-Mail.</li>
+                    <li>Klicken oder tippen Sie auf <strong>Weiterleiten</strong>.</li>
+                    <li>Bearbeiten Sie weder Betreff noch Inhalt.</li>
+                    <li>Senden Sie die E-Mail unverändert an <a href="mailto:start@mailcheck.help">start@mailcheck.help</a>.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 20. Fastmail (Browser) -->
+        <div class="accordion">
+            <div class="accordion-header">Fastmail (Browser)</div>
+            <div class="accordion-content">
+                <p>
+                    Fastmail stellt keine direkte Weiterleitungsfunktion als Anhang bereit. 
+                    Verwenden Sie hierfür die reguläre Weiterleitung:
+                </p>
+                <ul>
+                    <li>Öffnen Sie die betreffende E-Mail.</li>
+                    <li>Klicken Sie auf <strong>Weiterleiten</strong>.</li>
+                    <li>Bearbeiten Sie nichts am Betreff oder Inhalt.</li>
+                    <li>Senden Sie die E-Mail an den gewünschten Empfänger (<a href="mailto:start@mailcheck.help">start@mailcheck.help</a>).</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Hinweis/Disclaimer -->
+        <div class="note">
+           E-Mails werden nach dem verarbeiten direkt gelöscht und Daten nur für die KI-Analyse mit Dritten geteilt.
+        </div>
+    </div>
+    <footer>
+        <p>&copy; 2024 Mailcheck-Service. Alle Rechte vorbehalten.</p>
+        <p class="disclaimer">Hinweis: Dieser Dienst wurde im Rahmen einer Bachelorarbeit an der LMU München entwickelt.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const accordionHeaders = document.querySelectorAll('.accordion-header');
+            const searchInput = document.querySelector('#searchInput');
+
+            // Accordion Toggle
+            accordionHeaders.forEach(header => {
+                header.addEventListener('click', () => {
+                    const parent = header.parentElement;
+                    parent.classList.toggle('active');
+                });
+            });
+
+            // Live Search
+            searchInput.addEventListener('input', () => {
+                const filter = searchInput.value.toLowerCase();
+                const allAccordions = document.querySelectorAll('.accordion');
+
+                allAccordions.forEach(acc => {
+                    const text = acc.querySelector('.accordion-header').textContent.toLowerCase();
+                    acc.style.display = text.includes(filter) ? '' : 'none';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
