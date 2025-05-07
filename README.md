@@ -48,12 +48,11 @@ The system is organized into several key components:
 ## Installation
 
 ### Prerequisites
-- Node.js (v14 or higher)
-- npm or yarn
-- ClamAV (for malware scanning)
-- Docker (optional, for containerized deployment)
+- Docker and Docker Compose
+- A mail server for sending/receiving emails
+- An OpenRouter API key for LLM access
 
-### Standard Installation
+### Docker Compose Installation
 
 1. Clone the repository:
    ```bash
@@ -61,42 +60,43 @@ The system is organized into several key components:
    cd mailcheck
    ```
 
-2. Install dependencies:
-   ```bash
-   npm install
+2. Create a `.env` file with the following variables:
    ```
-
-3. Configure environment variables:
-   Create a `.env` file with the following variables:
-   ```
-   PORT=3000
+   # Mail server configuration
    MAIL_SERVER=your-mail-server
-   MAIL_USERNAME=your-mail-username
-   MAIL_PASSWORD=your-mail-password
+   MAIL_USERNAME=your-email@example.com
+   MAIL_PASSWORD=your-email-password
+   
+   # Path to the directory where incoming emails will be stored
+   MAIL_SERVER_FS=/path/to/mailserver/directory
+   
+   # API key for Google Safe Browsing to check URLs for malicious content
+   GOOGLE_SAFE_BROWSING_API_KEY=your-google-safe-browsing-api-key
+   
+   # API key for OpenRouter to access various AI models
    OPENROUTER_API_KEY=your-openrouter-api-key
    ```
 
-4. Start the application:
+3. Start the application with Docker Compose:
    ```bash
-   npm start
+   docker compose up -d
+   ```
+   
+   This will:
+   - Build the Docker image with Node.js, ClamAV, and Chromium
+   - Mount the data directory for persistence
+   - Configure the mail server directory
+   - Start the application on port 3000
+
+4. View logs:
+   ```bash
+   docker compose logs -f
    ```
 
-### Docker Installation
-
-1. Build the Docker image:
+5. Stop the application:
    ```bash
-   docker build -t mailcheck .
+   docker compose down
    ```
-
-2. Run the container:
-   ```bash
-   docker run -p 3000:3000 --env-file .env mailcheck
-   ```
-
-Alternatively, use Docker Compose:
-```bash
-docker-compose up
-```
 
 ## Usage
 

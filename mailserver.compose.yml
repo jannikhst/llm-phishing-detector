@@ -1,0 +1,38 @@
+services:
+  mailserver:
+    image: ghcr.io/docker-mailserver/docker-mailserver:latest
+    container_name: mailserver
+    hostname: mail.example.com  # TODO: Replace with your mail server FQDN (e.g., mail.yourdomain.com)
+    env_file: mailserver.env  # Should contain environment variables for mailserver configuration
+    ports:
+      - "25:25"    # SMTP (STARTTLS, no auth on port 25)
+      - "143:143"  # IMAP4 (STARTTLS)
+      - "465:465"  # SMTP (implicit TLS)
+      - "587:587"  # SMTP (STARTTLS with authentication)
+      - "993:993"  # IMAP4 (implicit TLS)
+    volumes:
+      - ./docker-data/dms/mail-data/:/var/mail/
+      - ./docker-data/dms/mail-state/:/var/mail-state/
+      - ./docker-data/dms/mail-logs/:/var/log/mail/
+      - ./docker-data/dms/config/:/tmp/docker-mailserver/
+      - /etc/localtime:/etc/localtime:ro
+      - ./acme.json:/etc/letsencrypt/acme.json:ro  # TODO: Ensure acme.json has correct SSL certs (or adjust path)
+    restart: always
+    stop_grace_period: 1m
+    healthcheck:
+      test: "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
+      timeout: 3s
+      retries: 0
+
+  whoami:
+    image: traefik/whoami:latest
+    container_name: mail-ssl-dummy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`mail.example.com`)"  # TODO: Replace with your domains
+    networks:
+      - traefik_web
+
+networks:
+  traefik_web:
+    external: true
