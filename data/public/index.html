@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-Mail Sicherheitsanalyse</title>
+  <style>
+    /* Grundlegende Resets und Schriftarten */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0f2027; /* Fallback für ältere Browser */
+      background: linear-gradient(135deg, #2c5364, #203a43, #0f2027);
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 20px;
+    }
+
+    header {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    header h1 {
+      font-size: 3em;
+      margin-bottom: 10px;
+      color: #ffffff;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    header p {
+      font-size: 1.2em;
+      color: #a0aec0;
+    }
+
+    .content {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 40px 30px;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .content h2 {
+      font-size: 1.5em;
+      margin-bottom: 20px;
+      color: #ffffff;
+      text-align: center;
+    }
+
+    .drop-zone {
+      border: 2px dashed #4fd1c5;
+      border-radius: 10px;
+      padding: 30px;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.3s, border-color 0.3s;
+      background: rgba(255, 255, 255, 0.1);
+      color: #a0aec0;
+      position: relative;
+    }
+
+    .drop-zone.hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: #81e6d9;
+      color: #ffffff;
+    }
+
+    .drop-zone input {
+      display: none;
+    }
+
+    .drop-zone p {
+      font-size: 1.1em;
+      margin-bottom: 10px;
+    }
+
+    .drop-zone button {
+      padding: 10px 20px;
+      background-color: #4fd1c5;
+      border: none;
+      border-radius: 5px;
+      color: #0f2027;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .drop-zone button:hover {
+      background-color: #38b2ac;
+    }
+
+    .message {
+      margin-top: 15px;
+      font-size: 0.95em;
+    }
+
+    .message.error {
+      color: #f56565;
+    }
+
+    .message.success {
+      color: #38a169;
+    }
+
+    .email-option {
+      margin-top: 30px;
+      font-size: 1em;
+      color: #a0aec0;
+      text-align: center;
+    }
+
+    .email-option a {
+      color: #4fd1c5;
+      text-decoration: underline;
+    }
+
+    .email-option a:hover {
+      color: #38b2ac;
+    }
+
+    footer {
+      margin-top: 40px;
+      font-size: 0.9em;
+      color: #a0aec0;
+      text-align: center;
+      max-width: 800px;
+    }
+
+    footer p {
+      margin-bottom: 5px;
+    }
+
+    footer .disclaimer {
+      font-size: 0.8em;
+      color: #718096;
+    }
+
+    #progress-container {
+      width: 100%;
+      background-color: #ddd;
+      border-radius: 5px;
+      overflow: hidden;
+      display: none;
+      margin-top: 20px;
+    }
+
+    #progress-bar {
+      width: 0%;
+      height: 100%;
+      background-color: #4fd1c5;
+      transition: width 0.3s;
+    }
+
+    /* Vollbild-Ladebildschirm */
+    #fullscreen-loader {
+      position: fixed;
+      top: 0; 
+      left: 0;
+      width: 100vw; 
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.9);
+      display: none;
+      z-index: 9999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .fullscreen-spinner {
+      margin: 0 auto 20px auto;
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #4fd1c5;
+      border-radius: 50%;
+      width: 70px;
+      height: 70px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    #fullscreen-tasks {
+      color: #a0aec0;
+      font-size: 1em;
+      height: 1em;
+      margin-top: 10px;
+      transition: opacity 0.3s;
+    }
+
+    /* Responsive Anpassungen */
+    @media (max-width: 600px) {
+      .content {
+        padding: 30px 20px;
+      }
+
+      header h1 {
+        font-size: 2.5em;
+      }
+
+      .content h2 {
+        font-size: 1.2em;
+      }
+
+      #fullscreen-tasks {
+        font-size: 0.9em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>E-Mail Analyse</h1>
+    <p>Prüfen Sie Ihre E-Mails auf Phishing oder andere Gefahren</p>
+  </header>
+
+  <main class="content">
+    <h2>Jetzt Analyse starten</h2>
+
+    <div class="drop-zone" id="drop-zone">
+      <input type="file" id="file-input" accept=".eml" />
+      <p>Ziehen Sie Ihre .eml Datei hierher oder klicken Sie, um eine Datei auszuwählen</p>
+      <button type="button" id="browse-button">Datei auswählen</button>
+    </div>
+
+    <div id="message" class="message"></div>
+
+    <div id="progress-container">
+      <div id="progress-bar"></div>
+    </div>
+
+    <div class="email-option">
+      Oder senden Sie Ihre E-Mail direkt an
+      <a href="mailto:start@mailcheck.help?subject=E-Mail-Analyse&body=Bitte senden Sie die .eml Datei als Anhang oder leiten Sie die E-Mail einfach weiter.">start@mailcheck.help</a>.
+      <br>
+      Sie erhalten anschließend eine Antwortmail mit dem Bericht.
+      <br>
+      Erfahren Sie <a href="/how">hier</a> wie Sie eine .eml Datei erhalten und senden.
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2024 Mailcheck-Service. Alle Rechte vorbehalten.</p>
+    <p class="disclaimer">
+      Dieser Dienst wurde im Rahmen einer Bachelorarbeit an der LMU München entwickelt.
+      <br>
+      Daten werden gegebenenfalls an Dritte weitergegeben um die Analyse durchzuführen.
+    </p>
+  </footer>
+
+  <!-- Vollbild-Ladebildschirm -->
+  <div id="fullscreen-loader">
+    <div class="fullscreen-spinner"></div>
+    <div id="fullscreen-tasks"></div>
+  </div>
+
+  <script>
+    const tasks = [
+      "Header überprüfen ...",
+      "Absender-Signatur validieren ...",
+      "DNS abfragen ...",
+      "Authentifizierungsheader prüfen ...",
+      "Blacklists/Whitelists abgleichen ...",
+      "Phishing-Muster erkennen ...",
+      "Sicheren Browser starten ...",
+      "Links aufrufen ...",
+      "Anhänge scannen ...",
+      "Auf KI-Antwort warten ...",
+      "Bericht erstellen ...",
+      "Bericht empfangen ...",
+    ];
+
+    // Funktion zum Verarbeiten der Datei
+    function invokeProcessing(emlFile) {
+      const formData = new FormData();
+      formData.append('emlFile', emlFile);
+
+      // Vollbildmodus aktivieren
+      showFullscreenLoader();
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/analyze', true);
+
+      const progressContainer = document.getElementById('progress-container');
+      const progressBar = document.getElementById('progress-bar');
+
+      progressContainer.style.display = 'block';
+      progressBar.style.width = '0%';
+
+      xhr.upload.onprogress = function (event) {
+        if (event.lengthComputable) {
+          const percentComplete = (event.loaded / event.total) * 100;
+          progressBar.style.width = percentComplete + '%';
+        }
+      };
+
+      xhr.onload = function () {
+        progressContainer.style.display = 'none';
+        hideFullscreenLoader();
+
+        if (xhr.status === 200) {
+          try {
+            const response = JSON.parse(xhr.responseText);
+            localStorage.setItem('emailReport', JSON.stringify(response));
+            window.location.href = '/result';
+          } catch (e) {
+            displayMessage('Fehler beim Verarbeiten der Serverantwort.', 'error');
+          }
+        } else {
+          let errorMsg = 'Fehler beim Hochladen der Datei.';
+          try {
+            const errorResponse = JSON.parse(xhr.responseText);
+            if (errorResponse.error) {
+              errorMsg = errorResponse.error;
+            }
+          } catch (e) {}
+          displayMessage(errorMsg, 'error');
+        }
+      };
+
+      xhr.onerror = function () {
+        progressContainer.style.display = 'none';
+        hideFullscreenLoader();
+        displayMessage('Ein Netzwerkfehler ist aufgetreten.', 'error');
+      };
+
+      xhr.send(formData);
+    }
+
+    // Funktion zum Anzeigen von Nachrichten
+    function displayMessage(message, type) {
+      const msgDiv = document.getElementById('message');
+      msgDiv.textContent = message;
+      msgDiv.className = 'message ' + type;
+    }
+
+    // Vollbild-Ladebildschirm einblenden
+    function showFullscreenLoader() {
+      const loader = document.getElementById('fullscreen-loader');
+      loader.style.display = 'flex';
+
+      // Fake-Tasks
+      const taskDiv = document.getElementById('fullscreen-tasks');
+      let index = 0;
+      taskDiv.textContent = tasks[index];
+
+      const intervalId = setInterval(() => {
+        index++;
+        if (index >= tasks.length) {
+          clearInterval(intervalId);
+          taskDiv.textContent = "";
+        } else {
+          taskDiv.textContent = tasks[index];
+        }
+      }, 2500);
+    }
+
+    // Vollbild-Ladebildschirm ausblenden
+    function hideFullscreenLoader() {
+      document.getElementById('fullscreen-loader').style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const dropZone = document.getElementById('drop-zone');
+      const fileInput = document.getElementById('file-input');
+      const browseButton = document.getElementById('browse-button');
+      const message = document.getElementById('message');
+
+      // Datei auswählen Button
+      browseButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        fileInput.click();
+      });
+
+      // Datei ausgewählt über Dialog
+      fileInput.addEventListener('change', () => {
+        const file = fileInput.files[0];
+        handleFile(file);
+        fileInput.value = '';
+      });
+
+      // Drag over
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('hover');
+      });
+
+      // Drag leave
+      dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('hover');
+      });
+
+      // Drop
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('hover');
+        const file = e.dataTransfer.files[0];
+        handleFile(file);
+      });
+
+      // Klick auf Drop-Zone
+      dropZone.addEventListener('click', () => {
+        fileInput.click();
+      });
+
+      // Datei Validierung
+      function handleFile(file) {
+        message.textContent = '';
+        message.classList.remove('error', 'success');
+
+        if (!file) return;
+
+        const validExtension = /\.eml$/i;
+        const maxSize = 35 * 1024 * 1024; // 35MB
+
+        if (!validExtension.test(file.name)) {
+          message.textContent = 'Fehler: Nur .eml Dateien sind erlaubt.';
+          message.classList.add('error');
+          return;
+        }
+
+        if (file.size > maxSize) {
+          message.textContent = 'Fehler: Datei darf nicht größer als 35MB sein.';
+          message.classList.add('error');
+          return;
+        }
+
+        // Datei ist gültig
+        displayMessage('Datei erfolgreich hochgeladen und wird verarbeitet.', 'success');
+        invokeProcessing(file);
+      }
+    });
+  </script>
+</body>
+</html>

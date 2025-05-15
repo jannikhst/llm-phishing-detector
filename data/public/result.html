@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyseergebnis</title>
+    <!-- Einbindung von Chart.js via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts für bessere Typografie -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Grundlegende Resets */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f7fa;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        header {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        header p {
+            font-size: 1.1em;
+            color: #7f8c8d;
+        }
+
+        .content {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 40px;
+            max-width: 1200px;
+            width: 100%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #2980b9;
+            border-bottom: 2px solid #2980b9;
+            padding-bottom: 5px;
+        }
+
+        /* Sender Information */
+        .sender-info p {
+            font-size: 1em;
+            margin-bottom: 10px;
+            word-wrap: break-word;
+        }
+
+        .sender-info strong {
+            color: #2c3e50;
+        }
+
+        /* Donut Chart */
+        .chart-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 30px auto;
+            position: relative;
+            height: 300px;
+        }
+
+        /* KI-Analyse */
+        .ai-analysis {
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .ai-analysis h3 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #c0392b;
+            border-bottom: 2px solid #c0392b;
+            padding-bottom: 5px;
+        }
+
+        .ai-analysis .trustworthiness {
+            font-weight: bold;
+            text-transform: capitalize;
+            margin-bottom: 15px;
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #bdc3c7;
+            border-radius: 5px;
+            color: #2c3e50;
+        }
+
+        .threat {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            background-color: #f8f8f8;
+            border-left: 5px solid;
+        }
+
+        .threat.low {
+            border-left-color: #a3d9a5;
+            /* Pastell-Grün */
+            background-color: #e6f5e9;
+        }
+
+        .threat.medium {
+            border-left-color: #f9c898;
+            /* Pastell-Orange */
+            background-color: #fff7f0;
+        }
+
+        .threat.high {
+            border-left-color: #f4a6a6;
+            /* Pastell-Rot */
+            background-color: #fdeaea;
+        }
+
+        .threat-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .threat-description {
+            font-size: 0.95em;
+            color: #555;
+        }
+
+        .trust-points {
+            color: #7f8c8d;
+            font-style: italic;
+            font-size: 12px;
+        }
+
+        /* Header-Analyse */
+        .header-analysis .check {
+            background: #ecf0f1;
+            border-left: 5px solid #2980b9;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            word-wrap: break-word;
+        }
+
+        .header-analysis .check.failed {
+            border-left-color: #c0392b;
+        }
+
+        .header-analysis .check .details {
+            flex: 1;
+        }
+
+        .header-analysis .check .points {
+            font-weight: bold;
+            color: #2980b9;
+            margin-left: 20px;
+        }
+
+        .header-analysis .check.failed .points {
+            color: #c0392b;
+        }
+
+        /* Link-Analyse */
+        .link-analysis .check {
+            background: #ecf0f1;
+            border-left: 5px solid #2980b9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            word-wrap: break-word;
+        }
+
+        .link-analysis .check.failed {
+            border-left-color: #c0392b;
+        }
+
+        .link-analysis .check-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            word-break: break-word;
+            max-width: 100%;
+        }
+
+        .link-analysis .check-title strong {
+            color: #2c3e50;
+            flex: 1;
+        }
+
+        .link-analysis .screenshot-thumbnail {
+            width: 90px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-left: 10px;
+        }
+
+        .link-analysis .screenshot-thumbnail:hover {
+            transform: scale(1.05);
+        }
+
+        .nested-checks {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        /* Download und Share Button */
+        #download-button,
+        #share-button {
+            padding: 15px 30px;
+            background-color: #2980b9;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: block;
+        }
+
+        #download-button:hover,
+        #share-button:hover {
+            background-color: #1f6391;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            /* Stay in place */
+            z-index: 1000;
+            /* Sit on top */
+            padding-top: 60px;
+            /* Location of the box */
+            left: 0;
+            top: 0;
+            width: 100%;
+            /* Full width */
+            height: 100%;
+            /* Full height */
+            overflow: auto;
+            /* Enable scroll if needed */
+            background-color: rgba(0, 0, 0, 0.8);
+            /* Black w/ opacity */
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 80%;
+            max-height: 80%;
+            border-radius: 10px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 30px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .modal-close:hover,
+        .modal-close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .header-analysis .check .details,
+        .link-analysis .check .details {
+            word-break: break-word;
+            max-width: 100%;
+        }
+
+        /* Responsive Anpassungen */
+        @media (max-width: 800px) {
+            .chart-container {
+                max-width: 300px;
+            }
+
+            .header-analysis .check,
+            .link-analysis .check {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-analysis .check .points,
+            .link-analysis .check .points {
+                margin-left: 0;
+                margin-top: 10px;
+                color: inherit;
+            }
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 2em;
+            }
+
+            .section h2 {
+                font-size: 1.5em;
+            }
+
+            .link-analysis .check-title {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .link-analysis .screenshot-thumbnail {
+                width: 50px;
+                height: 50px;
+                margin-left: 0;
+                margin-top: 10px;
+            }
+
+            .ai-analysis {
+                padding: 20px;
+            }
+
+            .threat {
+                padding: 10px;
+            }
+
+            .header-analysis .check,
+            .link-analysis .check {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <script src="feedback.js"></script>
+    <header>
+        <h1>Analyseergebnis</h1>
+        <p>Ihre E-Mail Sicherheitsanalyse</p>
+    </header>
+    <main class="content">
+        <!-- Sender Information -->
+        <div class="section sender-info">
+            <h2>Absenderinformationen</h2>
+            <p><strong>Name:</strong> <span id="sender-name">-</span></p>
+            <p><strong>E-Mail:</strong> <span id="sender-email">-</span></p>
+            <p><strong>Betreff:</strong> <span id="subject">-</span></p>
+        </div>
+
+        <!-- Donut Chart -->
+        <div class="section">
+            <h2>Gesamtpunktzahl</h2>
+            <div class="chart-container">
+                <canvas id="scoreChart"></canvas>
+            </div>
+            <p style="text-align: center; margin-top: 20px; font-size: 0.7em; color: #b0b0b0;">
+                Höhere Punktzahlen sind besser.
+            </p>
+        </div>
+
+        <!-- KI-Analyse -->
+        <div class="section ai-analysis">
+            <!-- <h2>KI-Analyse</h2> -->
+            <div id="ai-analysis-content">
+                <!-- KI-Analyse Inhalte werden hier eingefügt -->
+            </div>
+        </div>
+
+        <!-- Header Analyse -->
+        <div class="section header-analysis">
+            <h2>Header Analyse</h2>
+            <p style="margin-bottom: 20px; font-size: 0.85em; color: #bebebe;">Header sind ein wesentlicher Bestandteil
+                jeder E-Mail, da sie wichtige Informationen zu Authentizität, Versandquelle und Inhalt der Nachricht
+                liefern. Durch die Analyse der Header kann überprüft werden, ob die E-Mail manipuliert wurde oder von
+                einer vertrauenswürdigen Quelle stammt.</p>
+            <div id="header-analysis-content">
+                <!-- Header Checks werden hier eingefügt -->
+            </div>
+        </div>
+
+        <!-- Link Analyse -->
+        <div class="section link-analysis">
+            <h2>Link Analyse</h2>
+            <p style="margin-bottom: 20px; font-size: 0.85em; color: #b0b0b0;">Die Analyse überprüft, ob die URLs, die
+                in der Mail gefunden wurden, auf bekannten Blacklists bzw. Whitelists vorhanden sind und erstellt
+                gegebenenfalls einen Screenshot. Dass eine URL nicht auf einer Blacklist gefunden wurde, garantiert
+                jedoch nicht, dass sie sicher ist.</p>
+
+            <div id="link-analysis-content">
+                <!-- Link Checks werden hier eingefügt -->
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: center; gap: 20px;">
+            <button id="download-button">Bericht herunterladen</button>
+            <button id="share-button">Bericht teilen</button>
+        </div>
+    </main>
+    <!-- Modal für vergrößerte Screenshots -->
+    <div id="screenshot-modal" class="modal">
+        <span class="modal-close">&times;</span>
+        <img class="modal-content" id="modal-image">
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const aiAnalysisContent = document.getElementById('ai-analysis-content');
+            const senderName = document.getElementById('sender-name');
+            const senderEmail = document.getElementById('sender-email');
+            const subject = document.getElementById('subject');
+            const headerAnalysisContent = document.getElementById('header-analysis-content');
+            const linkAnalysisContent = document.getElementById('link-analysis-content');
+            const shareButton = document.getElementById('share-button');
+
+            // Modal Elemente
+            const modal = document.getElementById('screenshot-modal');
+            const modalImage = document.getElementById('modal-image');
+            const modalClose = document.querySelector('.modal-close');
+
+            // Globale Variable zum Speichern des Berichts (als JSON-String)
+            let reportStr = "";
+
+            // Prüfen, ob in der URL ein ?r=uuid enthalten ist
+            const urlParams = new URLSearchParams(window.location.search);
+            const reportId = urlParams.get('r');
+
+            if (reportId) {
+                // Bericht per GET von /persist/uuid fetchen
+                fetch(`/persist/${reportId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            displayError(data.error.toUpperCase());
+                            return;
+                        }
+                        reportStr = JSON.stringify(data);
+                        populateSenderInfo(data);
+                        populateAIAnalysis(data);
+                        populateHeaderAnalysis(data.headerAnalysis);
+                        populateLinkAnalysis(data.linkAnalysis);
+                        createDonutChart(data.totalScore, data.maxScore);
+                    })
+                    .catch(err => {
+                        displayError('Fehler beim Laden des Berichts.');
+                        console.error(err);
+                    });
+            } else {
+                // Abrufen des Berichts aus dem localStorage
+                const localReport = localStorage.getItem('emailReport');
+                if (localReport) {
+                    reportStr = localReport;
+                    try {
+                        const data = JSON.parse(localReport);
+                        populateSenderInfo(data);
+                        populateAIAnalysis(data);
+                        populateHeaderAnalysis(data.headerAnalysis);
+                        populateLinkAnalysis(data.linkAnalysis);
+                        createDonutChart(data.totalScore, data.maxScore);
+                    } catch (e) {
+                        displayError('Fehler beim Laden des Berichts.');
+                    }
+                } else {
+                    displayError('Kein Bericht gefunden. Bitte führen Sie eine Analyse durch.');
+                }
+            }
+
+            // Funktion zum Anzeigen von Fehlern
+            function displayError(message) {
+                const content = document.querySelector('.content');
+                content.innerHTML = `
+                    <p style="color: #c0392b; text-align: center; font-size: 1.2em;">${message}</p>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button style="
+                            padding: 10px 20px;
+                            background-color: #2980b9;
+                            color: #fff;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            font-size: 1em;
+                            transition: background-color 0.3s;
+                        " onclick="window.location.href='/'">Zurück zur Startseite</button>
+                    </div>
+                `;
+            }
+
+            shareButton.addEventListener('click', () => {
+                // Wenn der Bericht bereits über eine uuid geladen wurde, kopiere nur die aktuelle URI
+                if (reportId) {
+                    navigator.clipboard.writeText(window.location.href)
+                        .then(() => alert("Link wurde in die Zwischenablage kopiert: " + window.location.href))
+                        .catch(err => console.error("Fehler beim Kopieren des Links:", err));
+                    return;
+                }
+                if (!confirm("Warnung: Durch das Teilen wird der Bericht für alle Nutzer, die den Link haben, einsehbar. Möchten Sie fortfahren?")) {
+                    return;
+                }
+                fetch('/persist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: reportStr
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.uuid) {
+                            const newUrl = window.location.origin + `/result?r=${data.uuid}`;
+                            navigator.clipboard.writeText(newUrl)
+                                .then(() => alert("Link wurde in die Zwischenablage kopiert: " + newUrl))
+                                .catch(err => console.error("Fehler beim Kopieren des Links:", err));
+                            window.history.pushState({}, '', `/result?r=${data.uuid}`);
+                        } else {
+                            alert("Fehler beim Teilen des Berichts.");
+                        }
+                    })
+                    .catch(err => {
+                        alert("Fehler beim Teilen des Berichts.");
+                        console.error(err);
+                    });
+            });
+
+            // Funktion zum Befüllen der Absenderinformationen
+            function populateSenderInfo(data) {
+                senderName.textContent = data.senderName || '-';
+                senderEmail.textContent = data.senderEmail || '-';
+                subject.textContent = data.subject || '-';
+            }
+
+            // Funktion zum Befüllen der KI-Analyse (Titel + Erklärung)
+            function populateAIAnalysis(data) {
+                if (!data.aiAnalysis) {
+                    aiAnalysisContent.textContent = 'Keine KI-Analyse verfügbar.';
+                    return;
+                }
+
+                const aiAnalysisDiv = document.querySelector('.ai-analysis');
+                const ai = data.aiAnalysis;
+                const trustScore = ai.trustScore || 0;
+
+                // Pastellfarben für trustScore 0-5
+                const pastelColors = [
+                    'rgba(255, 179, 186, 0.2)',
+                    'rgba(255, 223, 186, 0.2)',
+                    'rgba(255, 255, 186, 0.2)',
+                    'rgba(186, 255, 201, 0.2)',
+                    'rgba(186, 255, 255, 0.2)',
+                ];
+
+                // trustScore in den Index umwandeln (Grenzen 0-5)
+                const index = Math.min(Math.max(trustScore, 0), 5);
+
+                // Hintergrundfarbe entsprechend trustScore
+                aiAnalysisDiv.style.backgroundColor = pastelColors.reverse()[index];
+
+                let html = '';
+
+                // Title einfügen
+                if (ai.title) {
+                    html += `<h2>${sanitizeText(ai.title)}</h2>`;
+                }
+
+                // Bedrohungen
+                if (ai.threats && ai.threats.length > 0) {
+                    ai.threats.forEach(threat => {
+                        html += `
+                            <div class="threat ${threat.severity}">
+                                <div class="threat-title">${sanitizeText(threat.title)}</div>
+                                <div class="threat-description">${processExplanations(threat.description)}</div>
+                            </div>
+                        `;
+                    });
+                }
+
+                // Erklärungstext
+                html += `
+                    <p>${processExplanations(ai.explanation)}
+                        <span class="trust-points"> (+${ai.trustPoints || 0} Punkte)</span>
+                    </p>
+                `;
+
+                aiAnalysisContent.innerHTML = html;
+            }
+
+            // Funktion zum Befüllen der Header-Analyse mit SVG-Symbolen
+            function populateHeaderAnalysis(headerData) {
+                if (!headerData || !headerData.checks || headerData.checks.length === 0) {
+                    headerAnalysisContent.innerHTML = '<p>Keine Header-Analyse verfügbar.</p>';
+                    return;
+                }
+
+                headerAnalysisContent.innerHTML = ''; // Vorherige Inhalte löschen
+
+                headerData.checks.forEach(check => {
+                    const checkDiv = document.createElement('div');
+                    checkDiv.classList.add('check');
+
+                    if (!check.passed) {
+                        checkDiv.classList.add('failed');
+                    }
+
+                    const detailsDiv = document.createElement('div');
+                    detailsDiv.classList.add('details');
+                    detailsDiv.innerHTML = `<strong>${sanitizeText(check.title)}</strong><br>
+                                ${processExplanations(check.message)}`;
+
+                    // Symbol für bestanden / nicht bestanden
+                    const statusIcon = document.createElement('span');
+                    statusIcon.classList.add('icon');
+
+                    if (check.passed) {
+                        statusIcon.innerHTML = getCheckmarkSVG();
+                    } else {
+                        statusIcon.innerHTML = getCrossSVG(check.severity);
+                    }
+
+                    checkDiv.appendChild(detailsDiv);
+                    checkDiv.appendChild(statusIcon);
+                    headerAnalysisContent.appendChild(checkDiv);
+                });
+            }
+
+            // SVG für Checkmark (Bestanden)
+            function getCheckmarkSVG() {
+                return `
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" stroke="#27ae60" stroke-width="2" fill="none"/>
+                        <path d="M7 12L10 15L17 8" stroke="#27ae60" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                `;
+            }
+
+            // SVG für Kreuz (Nicht bestanden), mit Farbcode basierend auf Severity
+            function getCrossSVG(severity) {
+                let color = '#7f8c8d'; // Standard-Grau
+                if (severity === 'high') color = '#c0392b'; // Rot
+                if (severity === 'medium') color = '#e67e22'; // Tiefes Orange
+                if (severity === 'low') color = '#f1c40f'; // Gelb
+
+                return `
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" stroke="${color}" stroke-width="2" fill="none"/>
+                        <line x1="8" y1="8" x2="16" y2="16" stroke="${color}" stroke-width="2" stroke-linecap="round"/>
+                        <line x1="16" y1="8" x2="8" y2="16" stroke="${color}" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                `;
+            }
+
+            // Funktion zum rekursiven Befüllen der Link-Analyse
+            function populateLinkAnalysis(linkData) {
+                if (!linkData || !linkData.checks || linkData.checks.length === 0) {
+                    linkAnalysisContent.innerHTML = '<p>Keine Link-Analyse verfügbar.</p>';
+                    return;
+                }
+
+                linkData.checks.forEach(check => {
+                    const checkDiv = createLinkCheckDiv(check);
+                    linkAnalysisContent.appendChild(checkDiv);
+                });
+            }
+
+            // Funktion zum Erstellen eines Link-Check-Divs
+            function createLinkCheckDiv(check) {
+                const checkContainer = document.createElement('div');
+                checkContainer.classList.add('check');
+                if (!check.passed) {
+                    checkContainer.classList.add('failed');
+                }
+
+                // Titel und Screenshot
+                const titleDiv = document.createElement('div');
+                titleDiv.classList.add('check-title');
+                titleDiv.innerHTML = `<strong>${sanitizeText(check.title)}</strong>`;
+
+                if (check.screenshot) {
+                    const img = document.createElement('img');
+                    img.src = `/screenshot/${check.screenshot}`;
+                    img.alt = `Screenshot ${check.screenshot}`;
+                    img.classList.add('screenshot-thumbnail');
+                    img.addEventListener('click', () => {
+                        openModal(img.src);
+                    });
+                    titleDiv.appendChild(img);
+                }
+
+                checkContainer.appendChild(titleDiv);
+
+                // Status
+                const status = document.createElement('p');
+                status.innerHTML = `<strong>Status:</strong> ${check.passed ? 'Bestanden' : 'Nicht bestanden'}`;
+                checkContainer.appendChild(status);
+
+                // Nachrichten oder verschachtelte Checks
+                if (Array.isArray(check.message)) {
+                    const nestedDiv = document.createElement('div');
+                    nestedDiv.classList.add('nested-checks');
+                    check.message.forEach(subCheck => {
+                        if (typeof subCheck === 'object' && subCheck.title) {
+                            const subCheckDiv = createLinkCheckDiv(subCheck);
+                            nestedDiv.appendChild(subCheckDiv);
+                        } else {
+                            const msgP = document.createElement('p');
+                            msgP.textContent = sanitizeText(subCheck);
+                            nestedDiv.appendChild(msgP);
+                        }
+                    });
+                    checkContainer.appendChild(nestedDiv);
+                } else if (typeof check.message === 'string') {
+                    const msgP = document.createElement('p');
+                    msgP.textContent = sanitizeText(check.message);
+                    checkContainer.appendChild(msgP);
+                }
+
+                return checkContainer;
+            }
+
+            function createDonutChart(totalScore, maxScore) {
+                // Sicherstellen, dass der Score im gültigen Bereich liegt
+                totalScore = Math.max(0, Math.min(totalScore, maxScore));
+
+                const canvas = document.getElementById('scoreChart');
+                if (!canvas) {
+                    console.error("Kein Canvas-Element mit der ID 'scoreChart' gefunden.");
+                    return;
+                }
+                const ctx = canvas.getContext('2d');
+
+                // Pastellfarben als RGB-Arrays (ohne Alpha)
+                const redColor = [255, 179, 186];   // 0: Rot
+                const yellowColor = [247, 247, 131]; // 5: Gelb
+                const greenColor = [137, 232, 148];  // 10: Grün
+
+                // Interpolationsfunktion zwischen zwei Farben
+                const interpolateColor = (color1, color2, factor) =>
+                    color1.map((c, i) => Math.round(c + factor * (color2[i] - c)));
+
+                // Bestimme die dynamische Farbe basierend auf totalScore
+                const dynamicColorArray =
+                    totalScore <= 5
+                        ? interpolateColor(redColor, yellowColor, totalScore / 5)
+                        : interpolateColor(yellowColor, greenColor, (totalScore - 5) / 5);
+                const dynamicColor = `rgb(${dynamicColorArray.join(',')})`;
+
+                // Hintergrundfarbe für den nicht erreichten Teil
+                const remainingColor = '#eaeaea';
+
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: [totalScore, maxScore - totalScore],
+                            backgroundColor: [dynamicColor, remainingColor],
+                            hoverBackgroundColor: [dynamicColor, remainingColor],
+                            borderWidth: 3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            tooltip: { enabled: false },
+                            title: {
+                                display: true,
+                                text: `${totalScore} von ${maxScore}`,
+                                color: '#333',
+                                font: { size: 18 }
+                            }
+                        },
+                        cutout: '55%'
+                    }
+                });
+            }
+
+            // Funktion zum Herunterladen des Berichts als JSON-Datei
+            const downloadButton = document.getElementById('download-button');
+            downloadButton.addEventListener('click', () => {
+                if (!reportStr) {
+                    alert('Kein Bericht zum Herunterladen vorhanden.');
+                    return;
+                }
+                const blob = new Blob([reportStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'email_report.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+
+            // Funktionen für das Modal
+            function openModal(imageSrc) {
+                modal.style.display = "block";
+                modalImage.src = imageSrc;
+            }
+
+            function closeModal() {
+                modal.style.display = "none";
+                modalImage.src = "";
+            }
+
+            // Event Listener für das Schließen des Modals
+            modalClose.addEventListener('click', closeModal);
+
+            // Schließen des Modals, wenn außerhalb des Bildes geklickt wird
+            window.addEventListener('click', (event) => {
+                if (event.target == modal) {
+                    closeModal();
+                }
+            });
+
+            // Hilfsfunktion zum Großschreiben des ersten Buchstabens
+            function capitalizeFirstLetter(string) {
+                return string.charAt(0).toUpperCase() + string.slice(1);
+            }
+
+            // Hilfsfunktion zum Sanitizen von Text
+            function sanitizeText(text) {
+                const temp = document.createElement('div');
+                temp.textContent = text.replaceAll("[[", "").replaceAll("]]", "");
+                return temp.innerHTML;
+            }
+
+            // Hilfsfunktion zum Verarbeiten von Erklärungen mit [[term]] zu Links
+            function processExplanations(text) {
+                if (!text) return '-';
+                return text.replace(/\[\[(.*?)\]\]/g, (match, p1) => {
+                    const term = p1.trim();
+                    const termObj = getTermObject(term);
+                    if (termObj) {
+                        return `<a href="${sanitizeURL(termObj.path)}" target="_blank">${sanitizeText(term)}</a>`;
+                    }
+                    return sanitizeText(term);
+                });
+            }
+
+            // Hilfsfunktion zum Abrufen des Term-Objekts aus explanationTerms
+            function getTermObject(term) {
+                const report = JSON.parse(reportStr || '{}');
+                if (report.explanationTerms && Array.isArray(report.explanationTerms)) {
+                    return report.explanationTerms.find(t => t.term === term);
+                }
+                return null;
+            }
+
+            // Hilfsfunktion zum Sanitizen von URLs
+            function sanitizeURL(url) {
+                const temp = document.createElement('a');
+                temp.href = url;
+                return temp.href;
+            }
+        });
+    </script>
+</body>
+
+</html>

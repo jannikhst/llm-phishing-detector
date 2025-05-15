@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teilnahme an der Nutzerstudie</title>
+  <style>
+    /* Grundlegende Resets und Schriftarten */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0f2027;
+      background: linear-gradient(135deg, #2c5364, #203a43, #0f2027);
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 20px;
+    }
+
+    header {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    header h1 {
+      font-size: 3em;
+      margin-bottom: 10px;
+      color: #ffffff;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    header p {
+      font-size: 1.2em;
+      color: #a0aec0;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 40px 30px;
+      max-width: 900px;
+      width: 100%;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    h2 {
+      text-align: center;
+      color: #4fd1c5;
+      margin-bottom: 30px;
+      font-size: 2.5em;
+      text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .intro {
+      margin-bottom: 30px;
+      line-height: 1.6;
+      color: #e2e8f0;
+      text-align: justify;
+    }
+
+    .intro a {
+      color: #84d9e2;
+    }
+
+    .search-bar {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+
+    .search-bar input {
+      width: 100%;
+      max-width: 500px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 30px;
+      font-size: 16px;
+      outline: none;
+      transition: box-shadow 0.3s;
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+    }
+
+    .search-bar input::placeholder {
+      color: #cbd5e0;
+    }
+
+    .search-bar input:focus {
+      box-shadow: 0 0 10px #4fd1c5;
+    }
+
+    .accordion {
+      margin-bottom: 20px;
+      border: none;
+      border-radius: 10px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.05);
+      transition: background 0.3s;
+    }
+
+    .accordion:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .accordion-header {
+      background: #4fd1c5;
+      padding: 15px 20px;
+      cursor: pointer;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background-color 0.3s, color 0.3s;
+      border-radius: 10px;
+    }
+
+    .accordion-header:hover {
+      background: #38b2ac;
+      color: #ffffff;
+    }
+
+    .accordion-header::after {
+      content: '\25BC';
+      font-size: 1em;
+      transition: transform 0.3s;
+    }
+
+    .accordion.active .accordion-header::after {
+      transform: rotate(180deg);
+    }
+
+    .accordion-content {
+      display: none;
+      padding: 20px;
+      margin-top: 5px;
+      background: rgba(255, 255, 255, 0.1);
+      border-top: 1px solid #4fd1c5;
+      border-radius: 10px;
+      line-height: 1.6;
+      color: #e2e8f0;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .accordion.active .accordion-content {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .gif-container {
+      flex: 1;
+      min-width: 200px;
+      text-align: center;
+    }
+
+    .gif-container img {
+      width: 300px;
+      max-width: 100%;
+      border: 2px solid #4fd1c5;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    .gif-container img:hover {
+      transform: scale(1.05);
+    }
+
+    .text-container {
+      flex: 2;
+      min-width: 200px;
+    }
+
+    ul {
+      list-style-type: none;
+      padding-left: 0;
+      margin-top: 10px;
+    }
+
+    ul li {
+      margin-bottom: 10px;
+      position: relative;
+      padding-left: 20px;
+      color: #cbd5e0;
+    }
+
+    ul li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: #4fd1c5;
+    }
+
+    .note {
+      background: #f56565;
+      color: #ffffff;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      font-size: 0.95em;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    footer {
+      margin-top: 40px;
+      font-size: 0.9em;
+      color: #a0aec0;
+      text-align: center;
+      max-width: 900px;
+    }
+
+    footer p {
+      margin-bottom: 5px;
+    }
+
+    footer .disclaimer {
+      font-size: 0.8em;
+      color: #718096;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .container {
+        padding: 30px 20px;
+      }
+
+      h2 {
+        font-size: 2em;
+      }
+
+      .accordion.active .accordion-content {
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .search-bar input {
+        max-width: 100%;
+      }
+
+      .accordion-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    a {
+      color: #84d9e2;
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.8);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      max-width: 90%;
+      max-height: 90%;
+    }
+
+    .modal-content img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: #ffffff;
+      font-size: 30px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Nutzerstudie</h1>
+    <p>Kurze Erklärung zur Teilnahme</p>
+  </header>
+  <div class="container">
+    <!-- Einleitung -->
+    <div class="intro">
+      <p>
+        Für meine Bachelorarbeit entwickle ich ein System, das helfen soll, Phishing-Mails zu erkennen. Das System
+        bewertet nicht nur, ob eine Mail gefährlich ist, sondern erklärt auch individuell, wo genau das Risiko liegt.
+        Dadurch soll der Nutzer in Zukunft selbst besser in der Lage sein, Gefahren zu erkennen. Um das System zu
+        verbessern, benötige ich qualitatives Feedback von verschiedenen Nutzern.
+      </p>
+      <p>
+        Zum Testen muss eine EML-Datei hochgeladen werden. Diese Datei enthält alle Informationen einer
+        E-Mail – wie Text, Anhänge und Einstellungen – und wird von den meisten E-Mail-Programmen verwendet. Beachte,
+        dass sich eine EML-Datei am besten von einem Desktop-PC und nicht von einem Mobilgerät herunterladen lässt. Am
+        einfachsten geht dies z. B. direkt über den Webmail-Client von Google.
+      </p>
+      <p>
+        Es ist außerdem möglich, eine verdächtige E-Mail an <a href="mailto:start@mailcheck.help"
+          target="_blank">start@mailcheck.help</a> weiterzuleiten. Das System antwortet dann mit dem Analyse-Ergebnis.
+        Für die Studie wird jedoch empfohlen, die Option mit der hochgeladenen EML-Datei zu wählen, da hier das Feedback
+        direkt mit dem Analyseergebnis verbunden werden kann.
+      </p>
+      <p>
+        Im folgenden findet sich eine Schritt für Schritt Anleitung am Beispiel von Gmail (Desktop).
+      </p>
+      <p>
+        Vielen Dank für deine Teilnahme!
+      </p>
+    </div>
+
+    <h2>Anleitung</h2>
+
+    <!-- Schritt 1: EML-Datei finden -->
+    <div class="accordion">
+      <div class="accordion-header">Schritt 1: EML-Datei finden</div>
+      <div class="accordion-content">
+        <div class="gif-container">
+          <img src="https://mailcheck.help/gif/mailcheck-1.gif" alt="EML-Datei finden">
+        </div>
+        <div class="text-container">
+          <p>
+            Finde die EML-Datei in deinem E-Mail-Programm. Diese Datei speichert die komplette E-Mail (Text, Anhänge und
+            mehr). Auf <a href="https://mailcheck.help/how" target="_blank">mailcheck.help/how</a> findest du einfache
+            Anleitungen für die meisten Mail-Programme.
+          </p>
+          <ul>
+            <li>Wähle deinen Mail-Client aus der Liste aus</li>
+            <li>Klappe die Anleitung aus</li>
+            <li>Falls das E-Mail Programm das herunterladen unterstützt wird es hier erkärt</li>
+            <li>Im nächsten Schritt wird der Download anhand von Gmail erklärt</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Schritt 2: Mit Gmail (Desktop) arbeiten -->
+    <div class="accordion">
+      <div class="accordion-header">Schritt 2: Mit Gmail (Desktop) arbeiten</div>
+      <div class="accordion-content">
+        <div class="gif-container">
+          <img src="https://mailcheck.help/gif/mailcheck-2.gif" alt="Gmail (Desktop) EML herunterladen">
+        </div>
+        <div class="text-container">
+          <p>
+            So lädst du bei Gmail (Desktop) deine EML-Datei herunter: Öffne die verdächtige E-Mail bei <a
+              href="https://mail.google.com" target="_blank">mail.google.com</a>, klicke auf die drei Punkte und wähle
+            „Nachricht herunterladen“. Die EML-Datei wird dann auf deinem Rechner gespeichert.
+          </p>
+          <ul>
+            <li>Gmail im Browser öffnen</li>
+            <li>Verdächtige E-Mail anzeigen</li>
+            <li>Auf die drei Punkte klicken und „Nachricht herunterladen“ wählen</li>
+            <li>Die <code>.eml</code>-Datei speichern</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Schritt 3: EML-Datei hochladen & Feedback geben -->
+    <div class="accordion">
+      <div class="accordion-header">Schritt 3: Datei hochladen & Feedback geben</div>
+      <div class="accordion-content">
+        <div class="gif-container">
+          <img src="https://mailcheck.help/gif/mailcheck-3.gif" alt="EML-Datei hochladen & Feedback">
+        </div>
+        <div class="text-container">
+          <p>
+            Lade die gespeicherte EML-Datei über die Startseite hoch. Nach der Analyse zeigt dir das System das
+            Ergebnis. Klicke dann auf den blauen Feedback-Knopf in der rechten unteren Ecke, um dein Feedback zu geben.
+          </p>
+          <ul>
+            <li>Besuche die <a href="/" target="_blank">Startseite</a></li>
+            <li>Klicke auf "Datei auswählen"</li>
+            <li>Wähle die zuvor abgespeicherte <code>.eml</code>-Datei</li>
+            <li>Warte bis der Upload abgeschlossen ist</li>
+            <li>Schau dir das Analyseergebnis an</li>
+            <li>Gib mir Feedback indem du auf den blauen Button in der unteren rechten Ecke klickst</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hinweis/Disclaimer -->
+    <div class="note">
+      Hinweis: Die Daten werden nur für die Studie verwendet und vertraulich behandelt, bzw. nicht gespeichert.
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2024 Mailcheck-Service. Alle Rechte vorbehalten.</p>
+    <p class="disclaimer">Hinweis: Dieser Service wurde im Rahmen einer Bachelorarbeit entwickelt.</p>
+  </footer>
+
+  <!-- Modal Popup -->
+  <div id="modal" class="modal">
+    <span class="modal-close" id="modalClose">&times;</span>
+    <div class="modal-content" id="modalContent">
+      <!-- Vergrößertes Bild -->
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const accordionHeaders = document.querySelectorAll('.accordion-header');
+      const searchInput = document.querySelector('#searchInput');
+      const modal = document.getElementById('modal');
+      const modalContent = document.getElementById('modalContent');
+      const modalClose = document.getElementById('modalClose');
+
+      // Accordion Toggle
+      accordionHeaders.forEach(header => {
+        header.addEventListener('click', () => {
+          const parent = header.parentElement;
+          parent.classList.toggle('active');
+        });
+      });
+
+      // Modal Popup: Bild vergrößern beim Klicken
+      const gifImages = document.querySelectorAll('.gif-container img');
+      gifImages.forEach(img => {
+        img.addEventListener('click', () => {
+          modalContent.innerHTML = `<img src="${img.src}" alt="${img.alt}">`;
+          modal.style.display = 'flex';
+        });
+      });
+
+      // Schließen des Modals
+      modalClose.addEventListener('click', () => {
+        modal.style.display = 'none';
+      });
+
+      // Modal schließen, wenn außerhalb des Bildes geklickt wird
+      window.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.style.display = 'none';
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>

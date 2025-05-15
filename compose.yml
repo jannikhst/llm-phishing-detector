@@ -1,0 +1,22 @@
+services:
+  app:
+    container_name: mailchecker
+    restart: always  
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./data:/app/data
+      - ${MAIL_SERVER_FS}:/app/data/mailserver/start
+    env_file:
+      - .env
+    networks:
+      - traefik_web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mailchecker.rule=Host(`mailcheck.help`, `www.mailcheck.help`)"
+      - "traefik.http.services.mailchecker.loadbalancer.server.port=3000"
+
+networks:
+  traefik_web:
+    external: true

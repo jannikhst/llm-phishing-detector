@@ -1,0 +1,60 @@
+{
+  "name": "mailcheck",
+  "version": "1.0.0",
+  "description": "automatic mail integrity checks to prevent phishing",
+  "main": "src/app.ts",
+  "scripts": {
+    "start": "ts-node src/app.ts",
+    "production": "node build/index.js",
+    "build": "npx ncc build src/app.ts -o build --source-map --external puppeteer --external puppeteer-extra --external puppeteer-extra-plugin-stealth --external puppeteer-extra-plugin-anonymize-ua",
+    "build-mini": "npx ncc build src/app.ts -o build --minify --source-map"
+  },
+  "keywords": [
+    "phishing",
+    "mail",
+    "dkim",
+    "spf",
+    "spoofing"
+  ],
+  "author": "Jannik Hurst",
+  "license": "ISC",
+  "dependencies": {
+    "@vercel/ncc": "^0.38.1",
+    "axios": "^1.7.7",
+    "cheerio": "^1.0.0",
+    "chokidar": "^4.0.3",
+    "clamscan": "^2.4.0",
+    "cors": "^2.8.5",
+    "dns-query": "^0.11.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "imapflow": "^1.0.171",
+    "is-plain-object": "^5.0.0",
+    "mailauth": "^4.8.1",
+    "mailparser": "^3.7.2",
+    "multer": "^1.4.5-lts.1",
+    "node-cache": "^5.1.2",
+    "nodemailer": "^6.9.16",
+    "openai": "^4.77.0",
+    "puppeteer": "^23.11.1",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-anonymize-ua": "^2.4.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "sharp": "^0.33.5",
+    "uuid": "^11.0.3",
+    "zod": "^3.24.1",
+    "zod-to-json-schema": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/clamscan": "^2.0.8",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/imap": "^0.8.42",
+    "@types/imapflow": "^1.0.19",
+    "@types/mailparser": "^3.4.5",
+    "@types/multer": "^1.4.12",
+    "@types/node": "^20.14.2",
+    "@types/nodemailer": "^6.4.17",
+    "typescript": "^4.9.5"
+  }
+}
