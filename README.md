@@ -1,6 +1,6 @@
 # MailCheck: Email Security Analysis System
 
-![MailCheck Demo](https://raw.githubusercontent.com/jannikhst/llm-phishing-detector/main/data/public/gif/mailcheck-3.gif)
+![MailCheck Demo](https://raw.githubusercontent.com/jannikhst/llm-phishing-detector/main/data/public/gif/screenshot-2025-08-08-000275.gif)
 
 Try it yourself: [mailcheck.help](https://mailcheck.help)
 View example report: [Report](https://mailcheck.help/result?r=6875a1b4-0d27-4a8c-8773-c1a1efb1c88c)
